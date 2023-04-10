@@ -19,8 +19,8 @@ class diamondGridBG implements Drawable {
     // calculate length, then the number of them that fit
     diaLength = width / ((float)countX + 1.0);
     // get dimensions based on length, extra 3 needed for padding
-    dimX = (int)(width / diaLength) + 3;
-    dimY = (int)(height / diaLength) + 3;
+    dimX = (int)(width / diaLength) + 1;
+    dimY = (int)(height / diaLength) + 1;
 
     // spinny thing
     ang = HALF_PI / 2.0;
@@ -46,13 +46,14 @@ class diamondGridBG implements Drawable {
       for (int x_ = 0; x_ < dimX; ++x_) {
         pushMatrix();
 
-        translate(x_ * diaLength - diaLength*2, y_ * diaLength - diaLength*2);
+        translate(x_ * diaLength, y_ * diaLength);
         rotate(ang);
 
 
         noStroke();
         float hue = map(noise((float)hueNoise)*1000, 0, 1000, 0, 360);
-        fill(hue, 30, 60);
+        float brt = map(abs(x_ - dimX/2), 0, dimX/2, 69, 0);
+        fill(hue, 30, brt);
         float mult = 0.9;
         rect(0, 0, diaLength * mult, diaLength * mult);
 
@@ -74,7 +75,7 @@ void setup() {
   colorMode(HSB, 360, 100, 100, 100);
   rectMode(CENTER);
 
-  bgPattern = new diamondGridBG(10);
+  bgPattern = new diamondGridBG(11);
 }
 
 void draw() {
