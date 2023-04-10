@@ -39,11 +39,12 @@ class diamondGridBG implements Drawable {
     // update angle for spinny animation
     ang += 0.01;
 
-    // Map Perlin noise to the hue range -360 to 740
-    //float hue = map(noise(hueNoise += 0.001), 0, 1, -360, 740);
-
-    for (int y_ = 0; y_ < dimY; ++y_) {
-      for (int x_ = 0; x_ < dimX; ++x_) {
+    for (int x_val = 0; x_val < dimX; ++x_val) {
+      // print from outter values to mid value
+      // this makes center column draw last and overlap edges
+      int x_ = x_val % 2 == 0 ? x_val / 2 : dimX - x_val / 2 - 1;
+      
+      for (int y_ = 0; y_ < dimY; ++y_) {
         pushMatrix();
 
         translate(x_ * diaLength, y_ * diaLength);
