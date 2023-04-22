@@ -43,25 +43,27 @@ class diamondGridBG implements Drawable {
       // print from outter values to mid value
       // this makes center column draw last and overlap edges
       int x_ = x_val % 2 == 0 ? x_val / 2 : dimX - x_val / 2 - 1;
-      
+
       for (int y_ = 0; y_ < dimY; ++y_) {
         pushMatrix();
 
         translate(x_ * diaLength, y_ * diaLength);
-        rotate(ang);
-
+        if ((x_ * dimY + y_) % 2 == 0)
+          rotate(ang);
+        else
+          rotate(-ang);
 
         noStroke();
         float hue = map(noise((float)hueNoise)*1000, 0, 1000, 0, 360);
         float brt = map(abs(x_ - dimX/2), 0, dimX/2, 69, 0);
-        fill(hue, 30, brt);
-        float mult = 0.9;
+        fill(hue, 39, brt);
+        float mult = 0.8 + 0.25*noise((float)hueNoise*2);
         rect(0, 0, diaLength * mult, diaLength * mult);
 
         popMatrix();
       }
-      
-      hueNoise += 0.0001;
+
+      hueNoise += 0.0003;
     }
 
     popStyle();
@@ -71,7 +73,7 @@ class diamondGridBG implements Drawable {
 diamondGridBG bgPattern;
 
 void setup() {
-  size(450, 900); // close enough to mobile
+  size(450, 450); // close enough to mobile
 
   colorMode(HSB, 360, 100, 100, 100);
   rectMode(CENTER);
