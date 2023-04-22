@@ -13,8 +13,8 @@ final int timeLimit = 15; // half a second, time frame for all players to remove
 
 
 /***
-  Setup & Draw
-***/
+ Setup & Draw
+ ***/
 
 void setup() {
   fullScreen(); // best for android
@@ -30,13 +30,41 @@ void setup() {
 
 void draw() {
   background(69); // nice
+
+  // offwhite
+  color colorText = color(120, 0, 95);
+  // kinda slate gray (blue-ish tone to it)
+  color colorLight = color(160, 10, 50);
+  // darker gray for borders and what not
+  color colorDark = color(160, 10, 50);
+  
+  float tokenSize = width/4;
+
+  for (int i = 0; i < touches.length; i++) {
+    pushMatrix(); // prepare translation
+
+    translate(touches[i].x, touches[i].y);
+    // roation in the future maybe?
+    // but that would need more matrix push pops to not rotate text
+
+    pushStyle(); // prepare for drawing
+
+    fill(colorLight);
+    stroke(colorDark);
+    strokeWeight(tokenSize * 0.25);
+    circle(0, 0, tokenSize);
+
+    popStyle(); // restore after drawing
+
+    popMatrix(); // restore matrix manipulations
+  }
 }
 
 
 
 /***
-  Touch Event Listeners
-***/
+ Touch Event Listeners
+ ***/
 
 // create a new token if touch didnt start on another token
 void touchStarted(TouchEvent event) {
@@ -44,6 +72,7 @@ void touchStarted(TouchEvent event) {
     int id = event.getPointerId(i);
     println("Touch started with ID: " + id);
   }
+  println("\n\n");
 }
 
 void touchEnded(TouchEvent event) {
@@ -51,16 +80,17 @@ void touchEnded(TouchEvent event) {
     int id = event.getPointerId(i);
     //println("Touch ended with ID: " + id);
   }
-  
+
   printArray(touches);
+  println("\n\n");
 }
 
 
 
 
 /***
-  Interfaces
-***/
+ Interfaces
+ ***/
 
 public interface Drawable {
   void _draw();
@@ -69,8 +99,8 @@ public interface Drawable {
 
 
 /***
-  Classes
-***/
+ Classes
+ ***/
 
 /*
   Class to track the touch tokens on screen
@@ -102,7 +132,7 @@ class TouchTracker implements Drawable {
 
     /***  position  ***/
     pos = new PVector(px_, py_);
-    
+
     /*** tracking ***/
     instance = TOKENS.size();
     activeID = id_;
@@ -113,8 +143,8 @@ class TouchTracker implements Drawable {
     tag = textToShow;
 
     /*** size ***/
-    tokenSize = width / 5; // needs to allow for many tokens on screen with space between 
-    
+    tokenSize = width / 5; // needs to allow for many tokens on screen with space between
+
     /*** timers ***/
     lifespan = (int)(FPS * 1.5); // second and a half
   }
@@ -122,23 +152,23 @@ class TouchTracker implements Drawable {
   // draw token on screen as circle
   void _draw() {
     pushMatrix(); // prepare translation
-    
+
     translate(pos.x, pos.y);
     // roation in the future maybe?
     // but that would need more matrix push pops to not rotate text
-    
+
     pushStyle(); // prepare for drawing
-    
+
     fill(colorLight);
     stroke(colorDark);
     strokeWeight(tokenSize * 0.05);
     circle(0, 0, tokenSize);
-    
+
     fill(colorText);
     textSize(tokenSize * 0.4);
-    
+
     popStyle(); // restore after drawing
-    
+
     popMatrix(); // restore matrix manipulations
   }
 }
