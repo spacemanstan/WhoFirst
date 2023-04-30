@@ -19,6 +19,11 @@ final int cdInterval = FPS*4;
 int selected = -1;
 
 
+ArrayList<Particle> particles = new ArrayList<Particle>();
+
+RingEffect winAnim = null;
+
+
 /***
  Setup & Draw
  ***/
@@ -59,6 +64,18 @@ void draw() {
   }
 
   if (STATE == "selecting" || STATE == "decided") {
+    
+    if(winAnim != null) winAnim._draw();
+
+    // draw particles
+    for (int p_ = particles.size() - 1; p_ > 0; --p_) {
+      Particle ptcl = particles.get(p_);
+
+      ptcl._draw();
+
+      if (ptcl.lifespan < 0)
+        particles.remove(p_);
+    }
 
     // draw highlight
     pushMatrix(); // prepare translation
@@ -87,14 +104,14 @@ void draw() {
 
       // text
       /***  random greek letter + which token this is  ***/
-      char randomGreek = (char) (noise(noiseVal + results.get(res).x + results.get(res).y) * 17 + 931);
-      int randomInt = (int) (noise(noiseVal + results.get(res).x + results.get(res).y) * 9 + 1);
-      String tag = Character.toString(randomGreek) + "[" + randomInt + "]";
+      //char randomGreek = (char) (noise(noiseVal + results.get(res).x + results.get(res).y) * 17 + 931);
+      //int randomInt = (int) (noise(noiseVal + results.get(res).x + results.get(res).y) * 9 + 1);
+      //String tag = Character.toString(randomGreek) + "[" + randomInt + "]";
 
-      noStroke();
-      fill(colorText);
-      textSize(tokenSize * 0.5);
-      text(tag, 0, 0);
+      //noStroke();
+      //fill(colorText);
+      //textSize(tokenSize * 0.5);
+      //text(tag, 0, 0);
 
       popStyle(); // restore after drawing
       popMatrix(); // restore matrix manipulations
@@ -106,7 +123,14 @@ void draw() {
         if (results.size() > 1) {
           countDown = cdInterval;
 
+          // before removing selected spawn some particles at its pos
+          PVector selpos = results.get(selected).copy();
+
+          for (int rp = 0; rp < (int)random(5, 17); ++rp)
+            particles.add( new Particle(selpos.x, selpos.y) );
+
           results.remove(selected);
+
           selected = (int)(random(0, results.size()));
         }
 
@@ -116,12 +140,17 @@ void draw() {
             selected = -1;
             results.clear();
             STATE = "waiting";
+            winAnim = null;
             break;
           }
 
           countDown = (int)(cdInterval*1.25);
+          winAnim = new RingEffect(results.get(selected).x, results.get(selected).y);
           STATE = "decided";
         }
+      } else {
+        if (countDown % (FPS/2) == 0)
+          selected = (int)(random(0, results.size()));
       }
     }
   }
@@ -194,6 +223,8 @@ void touchStarted(TouchEvent event) {
   }
 }
 
+
+
 class Button {
   final PVector pos, dim;
   final String text;
@@ -234,6 +265,73 @@ class Button {
     text(text, 0, 0);
 
     popStyle();
+
+    popMatrix();
+  }
+}
+
+
+class Particle {
+  PVector pos, vel, acc;
+  int lifespan;
+
+  Particle(float px_, float py_) {
+    pos = new PVector(px_, py_);
+
+    float accx = (int)random(0, 2) == 0 ? -1 : 1;
+    float accy = (int)random(0, 2) == 0 ? -1 : 1;
+    float velx = accx * -5;
+    float vely = accy * -5;
+
+    vel = new PVector( velx*(int)random(1, 3), vely*(int)random(1, 3) );
+    acc = new PVector( random(-0.15, 0.15), random(-0.15, 0.15) );
+
+    lifespan = (int)(1.75 * FPS);
+  }
+
+  void _draw() {
+    pos.x += vel.x;
+    pos.y += vel.y;
+    vel.x += acc.x;
+    vel.y += acc.y;
+
+    --lifespan;
+
+    pushMatrix();
+
+    translate(pos.x, pos.y);
+
+    noStroke();
+    fill(0, 81, 65);
+    circle(0, 0, map(lifespan, 0, (int)(1.75 * FPS), 0, tokenSize/5));
+
+    popMatrix();
+  }
+}
+
+
+class RingEffect {
+  PVector pos;
+  int lifespan;
+
+  RingEffect(float px_, float py_) {
+    pos = new PVector(px_, py_);
+
+    lifespan = (int)(1.75 * FPS);
+  }
+
+  void _draw() {
+
+    --lifespan;
+
+    pushMatrix();
+
+    translate(pos.x, pos.y);
+
+    stroke(124, 81, 65, 75);
+    strokeWeight(tokenSize * 0.1);
+    noFill();
+    circle(0, 0, map(lifespan, 0, (int)(1.75 * FPS), tokenSize*2, tokenSize));
 
     popMatrix();
   }
